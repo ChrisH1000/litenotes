@@ -14,7 +14,9 @@ class NoteController extends Controller
      */
     public function index()
     {
-        $notes = Note::where('user_id', Auth::id())->latest('updated_at')->paginate(5);
+        // $notes = Note::where('user_id', Auth::id())->latest('updated_at')->paginate(5);
+        // $notes = Auth::user()->notes()->latest('updated_at')->paginate(5);
+        $notes = Note::whereBelongsTo(Auth::user())->latest('updated_at')->paginate(5);
         return view('notes.index')->with('notes', $notes);
     }
 
@@ -36,9 +38,15 @@ class NoteController extends Controller
             'text' => 'required'
         ]);
 
-        Note::create([
+        /* Note::create([
             'uuid' => Str::uuid(),
             'user_id' => Auth::id(),
+            'title' => $request->title,
+            'text' => $request->text
+        ]); */
+
+        Auth::user()->notes()->create([
+            'uuid' => Str::uuid(),
             'title' => $request->title,
             'text' => $request->text
         ]);
@@ -51,7 +59,8 @@ class NoteController extends Controller
      */
     public function show(Note $note)
     {
-        if($note->user_id != Auth::id()) {
+        // if($note->user_id != Auth::id()) {
+        if(!$note->user->is(Auth::user())) {
             abort(403, 'Unauthorized action.');
         }
 
@@ -63,7 +72,8 @@ class NoteController extends Controller
      */
     public function edit(Note $note)
     {
-        if($note->user_id != Auth::id()) {
+        // if($note->user_id != Auth::id()) {
+        if(!$note->user->is(Auth::user())) {
             abort(403, 'Unauthorized action.');
         }
 
@@ -75,7 +85,8 @@ class NoteController extends Controller
      */
     public function update(Request $request, Note $note)
     {
-        if($note->user_id != Auth::id()) {
+        // if($note->user_id != Auth::id()) {
+        if(!$note->user->is(Auth::user())) {
             abort(403, 'Unauthorized action.');
         }
 
@@ -89,14 +100,21 @@ class NoteController extends Controller
             'text' => $request->text
         ]);
 
-        return to_route('notes.show', $note);
+        return to_route('notes.show', $note)->with('success', 'Note updated successfully');
     }
 
     /**
      * Remove the specified resource from storage.
      */
-    public function destroy(string $id)
+    public function destroy(Note $note)
     {
-        //
+        // if($note->user_id != Auth::id()) {
+        if(!$note->user->is(Auth::user())) {
+            abort(403, 'Unauthorized action.');
+        }
+
+        $note->delete();
+
+        return to_route('notes.index')->with('success', 'Note deleted successfully');
     }
 }
