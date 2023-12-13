@@ -22,7 +22,7 @@
             <form action="{{  route('notes.destroy', $note) }}" method="POST">
               @method('delete')
               @csrf
-              <button type="submit" class="btn btn-danger ml-4" onclick="return confirm('Are you sure you wish to delete this note?')">Move to Trash</button>
+              <button type="submit" class="btn btn-danger ml-4" onclick="return confirm('Are you sure you wish to move this to trash?')">Move to Trash</button>
             </form>
           @else
             <p class="opacity-70">
@@ -33,10 +33,10 @@
               @csrf
               <button type="submit" class="btn btn-link">Restore Note</button>
             </form>
-            <form action="{{  route('notes.destroy', $note) }}" method="POST">
+            <form action="{{  route('trashed.destroy', $note) }}" method="POST">
               @method('delete')
               @csrf
-              <button type="submit" class="btn btn-danger ml-4" onclick="return confirm('Are you sure you wish to delete this note?')">Move to Trash</button>
+              <button type="submit" class="btn btn-danger ml-4" onclick="return confirm('Are you sure you wish to delete this note forever?')">Delete Forever</button>
             </form>
           @endif
         </div>
